@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verify OTP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+  <h2>OTP Verification</h2>
+
+  {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="message {{ category }}">{{ message }}</div>
+  {% endfor %}
+
+  <form method="POST" action="/verify_otp">
+    <input
+      type="text"
+      name="otp"
+      placeholder="Enter 6-digit OTP"
+      maxlength="6"
+      pattern="[0-9]{6}"
+      required
+    >
+    <button type="submit">Verify OTP</button>
+  </form>
+
+  <p style="text-align:center; margin-top:15px; font-size:14px;">
+    Check your email for OTP
+  </p>
+</div>
+
+</body>
+</html>

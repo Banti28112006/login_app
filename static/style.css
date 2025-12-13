@@ -1,0 +1,124 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Page center */
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+/* Card */
+.container {
+    width: 100%;
+    max-width: 400px;
+    background: #1f2933;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    color: white;
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 15px;
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+/* Links */
+a {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #93c5fd;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+/* Messages */
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.error {
+    background: #dc2626;
+}
+
+.success {
+    background: #16a34a;
+}
+
+/* Password eye */
+.password-box {
+    position: relative;
+}
+
+.toggle {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    color: black;
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+    h2 {
+        font-size: 20px;
+    }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 1024px) {
+    .container {
+        max-width: 420px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+    .container {
+        max-width: 450px;
+    }
+}

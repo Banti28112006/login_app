@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+  <h2>Admin Panel</h2>
+
+  {% if users %}
+    {% for user in users %}
+      <p style="display:flex; justify-content:space-between; align-items:center;">
+        {{ user[1] }}
+        <a href="/delete_user/{{ user[0] }}">❌</a>
+      </p>
+    {% endfor %}
+  {% else %}
+    <p>No users found</p>
+  {% endif %}
+
+  <a href="/logout">
+    <button style="margin-top:15px;">Logout</button>
+  </a>
+</div>
+
+</body>
+</html>
