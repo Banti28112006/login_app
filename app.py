@@ -9,9 +9,8 @@ app.secret_key = "supersecretkey"
 # ===============================
 # EMAIL CONFIG (FROM ENV VARS)
 # ===============================
-EMAIL_ADDRESS = os.environ.get("testmail.28.11 .a@gmail.com")
-EMAIL_PASSWORD = os.environ.get("bsvd rrgz vblx xnam")
-
+EMAIL_ADDRESS = "testmail.28.11.a@gmail.com"
+EMAIL_PASSWORD = "dwvfwermlwkynxpz"
 # ===============================
 # ADMIN CREDENTIALS
 # ===============================
