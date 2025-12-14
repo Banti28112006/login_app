@@ -8,18 +8,20 @@
 <body>
 
 <div class="container">
-  <h2>Admin Panel</h2>
+  <h2>Admin Dashboard</h2>
 
-  {% if users %}
-    {% for user in users %}
-      <p style="display:flex; justify-content:space-between; align-items:center;">
-        {{ user[1] }}
-        <a href="/delete_user/{{ user[0] }}">❌</a>
-      </p>
-    {% endfor %}
-  {% else %}
-    <p>No users found</p>
-  {% endif %}
+  <p style="text-align:center;">
+    👥 Total Users: <b>{{ total_users }}</b>
+  </p>
+
+  <hr>
+
+  {% for user in users %}
+    <p style="display:flex; justify-content:space-between;">
+      {{ user[1] }}
+      <a href="/delete_user/{{ user[0] }}">❌</a>
+    </p>
+  {% endfor %}
 
   <a href="/logout">
     <button style="margin-top:15px;">Logout</button>

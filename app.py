@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, session
-import sqlite3, random, smtplib, os
+import sqlite3, random, smtplib, time
 from werkzeug.security import generate_password_hash, check_password_hash
 from email.mime.text import MIMEText
 
@@ -7,10 +7,11 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # ===============================
-# EMAIL CONFIG (FROM ENV VARS)
+# EMAIL CONFIG (TESTING PURPOSE)
 # ===============================
 EMAIL_ADDRESS = "testmail.28.11.a@gmail.com"
-EMAIL_PASSWORD = "dwvfwermlwkynxpz"
+EMAIL_PASSWORD = "dwvfwermlwkynxpz"   # 16-char app password (no spaces)
+
 # ===============================
 # ADMIN CREDENTIALS
 # ===============================
@@ -33,7 +34,7 @@ with get_db() as db:
     """)
 
 # ===============================
-# OTP EMAIL (SAFE + TIMEOUT)
+# OTP EMAIL FUNCTION
 # ===============================
 def send_otp(email, otp):
     try:
@@ -42,11 +43,7 @@ def send_otp(email, otp):
         msg["From"] = EMAIL_ADDRESS
         msg["To"] = email
 
-        server = smtplib.SMTP_SSL(
-            "smtp.gmail.com",
-            465,
-            timeout=10   # IMPORTANT for Render
-        )
+        server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10)
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(msg)
         server.quit()
@@ -81,11 +78,12 @@ def register_user():
     session["temp_user"] = {
         "email": email,
         "password": generate_password_hash(password),
-        "otp": otp
+        "otp": otp,
+        "otp_time": time.time()
     }
 
     if not send_otp(email, otp):
-        flash("OTP service temporarily unavailable. Try again later.", "error")
+        flash("OTP service unavailable", "error")
         return redirect("/register")
 
     flash("OTP sent to your email", "success")
@@ -104,6 +102,11 @@ def verify_otp():
         flash("Session expired. Register again.", "error")
         return redirect("/register")
 
+    # OTP expiry (5 minutes)
+    if time.time() - data["otp_time"] > 300:
+        flash("OTP expired. Please resend OTP.", "error")
+        return redirect("/verify")
+
     if str(data["otp"]) == user_otp:
         try:
             with get_db() as db:
@@ -121,6 +124,30 @@ def verify_otp():
         flash("Invalid OTP", "error")
         return redirect("/verify")
 
+# ===============================
+# RESEND OTP
+# ===============================
+@app.route("/resend_otp")
+def resend_otp():
+    data = session.get("temp_user")
+
+    if not data:
+        flash("Session expired. Register again.", "error")
+        return redirect("/register")
+
+    new_otp = random.randint(100000, 999999)
+    data["otp"] = new_otp
+    data["otp_time"] = time.time()
+    session["temp_user"] = data
+
+    send_otp(data["email"], new_otp)
+
+    flash("New OTP sent to your email", "success")
+    return redirect("/verify")
+
+# ===============================
+# LOGIN
+# ===============================
 @app.route("/login_user", methods=["POST"])
 def login_user():
     email = request.form["email"]
@@ -151,53 +178,6 @@ def logout():
     return redirect("/")
 
 # ===============================
-# FORGOT PASSWORD
-# ===============================
-@app.route("/forgot")
-def forgot():
-    return render_template("forgot.html")
-
-@app.route("/forgot_otp", methods=["POST"])
-def forgot_otp():
-    email = request.form["email"]
-    otp = random.randint(100000, 999999)
-    session["reset"] = {"email": email, "otp": otp}
-
-    if not send_otp(email, otp):
-        flash("OTP service temporarily unavailable", "error")
-        return redirect("/forgot")
-
-    flash("OTP sent to your email", "success")
-    return redirect("/reset")
-
-@app.route("/reset")
-def reset():
-    return render_template("reset.html")
-
-@app.route("/reset_password", methods=["POST"])
-def reset_password():
-    otp = request.form["otp"]
-    new_pass = generate_password_hash(request.form["password"])
-    data = session.get("reset")
-
-    if not data:
-        flash("Session expired", "error")
-        return redirect("/forgot")
-
-    if str(data["otp"]) == otp:
-        with get_db() as db:
-            db.execute(
-                "UPDATE users SET password=? WHERE email=?",
-                (new_pass, data["email"])
-            )
-        session.pop("reset")
-        flash("Password reset successful", "success")
-        return redirect("/")
-    else:
-        flash("Invalid OTP", "error")
-        return redirect("/reset")
-
-# ===============================
 # ADMIN PANEL
 # ===============================
 @app.route("/admin", methods=["GET", "POST"])
@@ -213,9 +193,16 @@ def admin():
 def admin_panel():
     if not session.get("admin"):
         return redirect("/admin")
+
     with get_db() as db:
         users = db.execute("SELECT id, email FROM users").fetchall()
-    return render_template("admin_panel.html", users=users)
+        total_users = db.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+
+    return render_template(
+        "admin_panel.html",
+        users=users,
+        total_users=total_users
+    )
 
 @app.route("/delete_user/<int:user_id>")
 def delete_user(user_id):
